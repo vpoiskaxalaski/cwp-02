@@ -10,7 +10,7 @@ const server = net.createServer((client) => {
   client.setEncoding('utf8');
 
   client.on('data', (data) => {
-    console.log('client send: ' +data);
+    console.log('client send: ' + data);
     if(data == 'QA'){      
       client.write('ACK');
     }else{
