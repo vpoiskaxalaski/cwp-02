@@ -1,0 +1,25 @@
+Client: QA
+
+Client: start test
+Server: go
+Client: Какой самый распространенный язык в мире?
+Server: на крыше
+Client: false
+Server: go
+Client: Когда началась Великая Отечественная война?
+Server: на крыше
+Client: false
+Server: go
+Client: Арабские цифры были изобретены в Индии?
+Server: на крыше
+Client: false
+Server: go
+Client: Какое заклинаний отпирает дверные замки?
+Server: 22 июня 1941 года
+Client: false
+Server: go
+Client: Где живет Карлсон?
+Server: алохомора
+Client: false
+Server: go
+Client disconnected
