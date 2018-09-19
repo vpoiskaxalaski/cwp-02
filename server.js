@@ -18,7 +18,7 @@ function shuffleArray(array) {
 const json =  fs.readFileSync('qa.json');
 let test = JSON.parse(json);
 let testArray = Array.from(test); 
-//shuffleArray(testArray);
+shuffleArray(testArray);
 
 
 const server = net.createServer((client) => {
@@ -42,9 +42,10 @@ const server = net.createServer((client) => {
         client.write(a+ 'check');
       }
     });
-    }
-    
-    client.on('end', () => console.log('Client disconnected'));
+    } 
+  });
+  client.on('close', () =>{
+    console.log('Client disconnected');
   });
 });
 

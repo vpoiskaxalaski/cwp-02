@@ -25,7 +25,7 @@ client.connect(port, function() {
   	qaFile = fs.readFileSync('qa.json');  
   	let questions = JSON.parse(qaFile);
   	questionArray = Array.from(questions); 
-	// shuffleArray(questionArray); 
+	 shuffleArray(questionArray); 
 });
 
 
