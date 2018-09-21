@@ -1,10 +1,13 @@
-// server.js
-const net = require('net');
 const fs = require('fs');
+const net = require('net');
 const port = 8124;
-let clientID = 1;
 
-//Перемешивание массива
+var i = 0; //уникальный идентификатор для клиента
+
+var formJSON = fs.readFileSync('qa.json', 'utf8');
+let arrQuestion = JSON.parse(formJSON);
+max = arrQuestion.length;
+
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
@@ -12,50 +15,35 @@ function shuffleArray(array) {
         array[i] = array[j];
         array[j] = temp;
     }
-  return array;
+    return array;
 }
 
-const json =  fs.readFileSync('qa.json');
-let test = JSON.parse(json);
-let testArray = Array.from(test); 
-shuffleArray(testArray);
-
-
 const server = net.createServer((client) => {
-  console.log('Client '+clientID +' connected');
-  client.setEncoding('utf8');
+  console.log('--------------- client: ' + (++i) + ' ---------------');
+
+    shuffleArray(arrQuestion); 
 
   client.on('data', (data) => {
-   
-    console.log('client send: ' + data);
-    if(data == 'QA'){  
-      fs.writeFile("Client"+clientID+".log", "Client: "+data+"\r\n",function(){});   
-      fs.appendFileSync("Client"+clientID+".log", "Server: ACK\r\n");    
-      client.write('ACK');
-    }else if(data == 'start test' || data == 'false' || data == 'true'){
-      fs.appendFileSync("Client"+clientID+".log", "Client: "+data + "\r\n");
-      fs.appendFileSync("Client"+clientID+".log", "Server: go\r\n");
-      client.write('go');
-    }else{
-      // client.write('DEC');
-      fs.appendFileSync("Client"+clientID+".log", "Client: "+data + "\r\n");
-      testArray.forEach(function(currentValue) {
-      if(data == currentValue['question']){
-        let index = Math.floor(Math.random() * 3);
-        let a = testArray[index]['answer'];
-        console.log('server answered: '+ a);
-        fs.appendFileSync("Client"+clientID+".log","Server: "+ a+"\r\n");
-        client.write(a+ 'check');
-      }
-    });
-    } 
+    if(data == 'QA'){
+      client.write('ASK' + i.toString());
+    }
+    else if(data == 'DEC') {
+      client.write('DEC');
+    }
+    else if(data.indexOf('ask') == 0){
+
+      var rand = max * Math.random();
+      rand = Math.floor(rand);
+
+      console.log('Вопрос: ' + (data.toString()).substring(3) + ' ' + 'Ответ: ' + arrQuestion[rand].answer);
+      client.write('answer' + arrQuestion[rand].answer);
+    }
   });
-  client.on('close', () =>{
-    fs.appendFileSync("Client"+clientID+".log", "Client disconnected\r\n");
-    console.log('Client disconnected');
-    clientID++;
-  });
+
+
+  client.on('end', () => console.log('Client disconnected'));
 });
+
 
 server.listen(port, () => {
   console.log(`Server listening on localhost:${port}`);

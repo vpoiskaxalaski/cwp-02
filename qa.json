@@ -1,26 +1,26 @@
 
 [
 	{
-		"question": "Когда началась Великая Отечественная война?",
-		"answer": "22 июня 1941 года"
+		"question": "What is my name?",
+		"answer": "Alena"
 	},
 	{
-		"question": "Какой самый распространенный язык в мире?",
-		"answer": "китайский"
+		"question": "What is the capital of Belarus?",
+		"answer": "Minsk"
 	},
 	{
-		"question": "Где живет Карлсон?",
-		"answer": "на крыше"
+		"question": "How old are you?",
+		"answer": "19"
 		
 	},
 	{
-		"question": "Какое заклинаний отпирает дверные замки?",
-		"answer": "алохомора"
+		"question": "What is your favourite book?",
+		"answer": "Gone for the wind"
 	
 	},
 	{
-		"question": "Арабские цифры были изобретены в Индии?",
-		"answer": "да" 
+		"question": "Do you like swimm?",
+		"answer": "yes" 
 	}
 ]
 

@@ -1,14 +1,28 @@
-// client.js
-const net = require('net');
 const fs = require('fs');
-var S = require('string');
+const net = require('net');
+const exec = require('child_process');
+const clientSwarm = require('./client-swarm.js');
 const port = 8124;
-let questionArray;
+
+clientSwarm(process.argv[2]);
+
+var right = 0;
+var quest;
+var count = 0;
+var clientCount;
+
 const client = new net.Socket();
-let i = 0;
 
+const qaFile = fs.readFileSync('qa.json',"utf8");  
+let arrQuestion = JSON.parse(qaFile);
+max = arrQuestion.length;
 
-//Перемешивание массива
+client.connect(port, function () {
+  shuffleArray(arrQuestion);
+  console.log('Connected');
+  client.write('QA');
+});
+
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
@@ -19,52 +33,48 @@ function shuffleArray(array) {
     return array;
 }
 
-client.connect(port, function() {
-	i=0;
-  	client.write('QA');
-  	qaFile = fs.readFileSync('qa.json');  
-  	let questions = JSON.parse(qaFile);
-  	questionArray = Array.from(questions); 
-	 shuffleArray(questionArray); 
+client.on('data', function (data) {
+  if(data.indexOf('ASK') == 0){
+    clientCount = (data.toString()).substring(3);
+    console.log('----------start test----------');
+
+    sendMessageToServer(client, arrQuestion);
+  }
+  else if(data == 'DEC'){
+    client.destroy();
+  }
+  else if(data.indexOf('answer') == 0){
+    let answer = (data.toString()).substring(6);
+    console.log('Вопрос: ' + quest + ' ' + 'Ответ: ' + answer);
+    count = count + 1;
+
+    fs.appendFileSync('config' + clientCount + '.txt', 'Вопрос: ' + quest + ' ' + 'Ответ: ' + answer + '\r\n');
+
+    for(let i = 0; i < arrQuestion.length; i++){
+      if(arrQuestion[i].question == quest && arrQuestion[i].answer == answer){
+        right = right + 1;;
+      }
+    }
+
+    if(count != arrQuestion.length){
+      sendMessageToServer(client, arrQuestion);
+    }
+    else{
+      fs.appendFileSync('config' + clientCount + '.txt', 'Количество правильных ответов: ' + right);
+      console.log('Количество правильных ответов: ' + right);
+      client.destroy();
+    }
+  }
 });
 
 
-function checkAnswer(ans, iterator){
-	if(S(ans).include(questionArray[iterator]['answer'])){
-			client.write('true');
-		}else{
-			client.write('false');
-		}
-}
+function sendMessageToServer(client, arrQuestion) {
 
-client.on('data', (data) => {
-	//если серрвер подключил клиента
-	if(data == 'ACK'){
-		console.log('Connection is successful');
-		client.write('start test');		
-	}else if(data == 'DEC'){
-		console.log('Connection isn\'t successful');
-		client.destroy();
-	}else if(S(data).endsWith('check')){
-		questionArray.forEach(function(currentValue) {
-      		if(S(data).strip('check').s == currentValue['answer']){
-      		checkAnswer(data, i);
-			i++;
-      		}
-    	});
-	}
-	else{
-		
-		//отправка вопросов
-		if(i==5){
-			client.destroy();
-		}else{
-			client.write(questionArray[i]['question']);
-		}
-	}
-	
-});
+  quest = arrQuestion[count].question;
+  client.write('ask' + quest);
+};
 
-client.on('close', function() {
+
+client.on('close', function () {
   console.log('Connection closed');
 });
