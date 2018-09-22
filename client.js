@@ -12,6 +12,7 @@ var count = 0;
 var clientCount;
 
 const client = new net.Socket();
+client.setEncoding('utf8');
 
 const qaFile = fs.readFileSync('qa.json',"utf8");  
 let arrQuestion = JSON.parse(qaFile);
@@ -20,7 +21,7 @@ max = arrQuestion.length;
 client.connect(port, function () {
   shuffleArray(arrQuestion);
   console.log('Connected');
-  client.write('QA');
+  sendQA();
 });
 
 function shuffleArray(array) {
@@ -48,7 +49,7 @@ client.on('data', function (data) {
     console.log('Вопрос: ' + quest + ' ' + 'Ответ: ' + answer);
     count = count + 1;
 
-    fs.appendFileSync('config' + clientCount + '.txt', 'Вопрос: ' + quest + ' ' + 'Ответ: ' + answer + '\r\n');
+    fs.appendFileSync('client' + clientCount + '.txt', 'Вопрос: ' + quest + ' ' + 'Ответ: ' + answer + '\r\n');
 
     for(let i = 0; i < arrQuestion.length; i++){
       if(arrQuestion[i].question == quest && arrQuestion[i].answer == answer){
@@ -60,13 +61,18 @@ client.on('data', function (data) {
       sendMessageToServer(client, arrQuestion);
     }
     else{
-      fs.appendFileSync('config' + clientCount + '.txt', 'Количество правильных ответов: ' + right);
+      fs.appendFileSync('client' + clientCount + '.txt', 'Количество правильных ответов: ' + right);
       console.log('Количество правильных ответов: ' + right);
       client.destroy();
     }
   }
 });
 
+
+function sendQA() {
+  console.log('client want to talk');
+  client.write('QA');
+};
 
 function sendMessageToServer(client, arrQuestion) {
 

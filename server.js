@@ -20,7 +20,7 @@ function shuffleArray(array) {
 
 const server = net.createServer((client) => {
   console.log('--------------- client: ' + (++i) + ' ---------------');
-
+  client.setEncoding('utf8');
     shuffleArray(arrQuestion); 
 
   client.on('data', (data) => {
